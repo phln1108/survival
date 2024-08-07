@@ -1,0 +1,95 @@
+[gd_scene load_steps=16 format=3 uid="uid://bs8sh3o8ayqqm"]
+
+[ext_resource type="Script" path="res://scenes/Player/Player.gd" id="1_1dsvw"]
+[ext_resource type="Script" path="res://scenes/Components/hurtbox/HurtboxComponent.gd" id="1_hcnvy"]
+[ext_resource type="Texture2D" uid="uid://c3n1apwhniuw4" path="res://assets/Base Character/idle.png" id="2_1hcun"]
+[ext_resource type="Script" path="res://scenes/Components/hitbox/HitboxComponent.gd" id="2_u5ahj"]
+[ext_resource type="PackedScene" uid="uid://dkgqe2gxhghjp" path="res://scenes/Components/health/HealthComponent.tscn" id="3_hnto8"]
+[ext_resource type="Script" path="res://scripts/StateMachine.gd" id="6_41wya"]
+[ext_resource type="Script" path="res://scenes/States/WalkingAround.gd" id="7_2cmsu"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_uv1b0"]
+atlas = ExtResource("2_1hcun")
+region = Rect2(32, 32, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_c0apl"]
+atlas = ExtResource("2_1hcun")
+region = Rect2(112, 32, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_c2l6u"]
+atlas = ExtResource("2_1hcun")
+region = Rect2(192, 32, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_4ebpc"]
+atlas = ExtResource("2_1hcun")
+region = Rect2(272, 32, 16, 16)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_b3lfh"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_uv1b0")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_c0apl")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_c2l6u")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_4ebpc")
+}],
+"loop": true,
+"name": &"idle",
+"speed": 8.0
+}]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_av6de"]
+size = Vector2(6, 4)
+
+[sub_resource type="CapsuleShape2D" id="CapsuleShape2D_4gc5l"]
+radius = 6.0
+height = 18.0
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_j5qi8"]
+size = Vector2(12, 14)
+
+[node name="Player" type="CharacterBody2D"]
+position = Vector2(0, -1)
+script = ExtResource("1_1dsvw")
+
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
+texture_filter = 1
+sprite_frames = SubResource("SpriteFrames_b3lfh")
+animation = &"idle"
+
+[node name="HealthComponent" parent="." instance=ExtResource("3_hnto8")]
+offset_left = -9.0
+offset_top = -13.0
+offset_right = -9.0
+offset_bottom = -13.0
+metadata/_edit_use_anchors_ = true
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+position = Vector2(7, 0)
+shape = SubResource("RectangleShape2D_av6de")
+
+[node name="HurtboxComponent" type="Area2D" parent="."]
+script = ExtResource("1_hcnvy")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="HurtboxComponent"]
+shape = SubResource("CapsuleShape2D_4gc5l")
+
+[node name="HitboxComponent" type="Area2D" parent="."]
+script = ExtResource("2_u5ahj")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="HitboxComponent"]
+shape = SubResource("RectangleShape2D_j5qi8")
+
+[node name="StateMachine" type="Node" parent="." node_paths=PackedStringArray("initialState")]
+script = ExtResource("6_41wya")
+initialState = NodePath("idle")
+
+[node name="idle" type="Node" parent="StateMachine" node_paths=PackedStringArray("character")]
+script = ExtResource("7_2cmsu")
+character = NodePath("../..")

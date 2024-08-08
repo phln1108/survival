@@ -42,4 +42,21 @@ func change_state(sourceState: State, newStateName: String) -> void:
 	
 	currentState = newState
 
+func force_change_state(newStateName: String) -> void:
+	var newState: State = states.get(newStateName.to_lower())
 	
+	if !newState:
+		printerr(newStateName + "not found!")
+		return
+	
+	if currentState == newState:
+		printerr("State is the same, operation canceled!")
+		return
+	
+	if currentState:
+		var exit_callable = Callable(currentState, "exit")
+		exit_callable.call_deferred()
+	
+	newState.enter()
+	
+	currentState = newState

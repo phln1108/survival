@@ -1,4 +1,4 @@
-[gd_scene load_steps=16 format=3 uid="uid://bs8sh3o8ayqqm"]
+[gd_scene load_steps=18 format=3 uid="uid://bs8sh3o8ayqqm"]
 
 [ext_resource type="Script" path="res://scenes/Player/Player.gd" id="1_1dsvw"]
 [ext_resource type="Script" path="res://scenes/Components/hurtbox/HurtboxComponent.gd" id="1_hcnvy"]
@@ -6,7 +6,8 @@
 [ext_resource type="Script" path="res://scenes/Components/hitbox/HitboxComponent.gd" id="2_u5ahj"]
 [ext_resource type="PackedScene" uid="uid://dkgqe2gxhghjp" path="res://scenes/Components/health/HealthComponent.tscn" id="3_hnto8"]
 [ext_resource type="Script" path="res://scripts/StateMachine.gd" id="6_41wya"]
-[ext_resource type="Script" path="res://scenes/States/WalkingAround.gd" id="7_2cmsu"]
+[ext_resource type="Script" path="res://scenes/States/FollowMouse.gd" id="7_mv7bv"]
+[ext_resource type="Script" path="res://scenes/States/WalkingAround.gd" id="7_wmkgb"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_uv1b0"]
 atlas = ExtResource("2_1hcun")
@@ -41,7 +42,7 @@ animations = [{
 }],
 "loop": true,
 "name": &"idle",
-"speed": 8.0
+"speed": 5.0
 }]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_av6de"]
@@ -53,6 +54,9 @@ height = 18.0
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_j5qi8"]
 size = Vector2(12, 14)
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_nuf32"]
+radius = 32.0
 
 [node name="Player" type="CharacterBody2D"]
 position = Vector2(0, -1)
@@ -86,10 +90,17 @@ script = ExtResource("2_u5ahj")
 [node name="CollisionShape2D" type="CollisionShape2D" parent="HitboxComponent"]
 shape = SubResource("RectangleShape2D_j5qi8")
 
+[node name="PerceptionArea" type="Area2D" parent="."]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="PerceptionArea"]
+shape = SubResource("CircleShape2D_nuf32")
+
 [node name="StateMachine" type="Node" parent="." node_paths=PackedStringArray("initialState")]
 script = ExtResource("6_41wya")
 initialState = NodePath("idle")
 
-[node name="idle" type="Node" parent="StateMachine" node_paths=PackedStringArray("character")]
-script = ExtResource("7_2cmsu")
-character = NodePath("../..")
+[node name="idle" type="Node" parent="StateMachine"]
+script = ExtResource("7_wmkgb")
+
+[node name="moving" type="Node" parent="StateMachine"]
+script = ExtResource("7_mv7bv")

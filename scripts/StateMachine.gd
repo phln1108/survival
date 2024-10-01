@@ -2,6 +2,7 @@ class_name StateMachine
 extends Node
 
 @export var initialState: State
+@export var text: Label
 
 var states : Dictionary ={}
 
@@ -12,12 +13,16 @@ func _ready() -> void:
 		if child is State:
 			states[child.name.to_lower()] = child
 			child.state_transition.connect(change_state)
+			child.init()
 	
 	if initialState:
 		initialState.enter()
 		currentState = initialState
 
 func _process(delta: float) -> void:
+	if text:
+		text.text = currentState.name
+	
 	if currentState:
 		currentState.update(delta)
 
@@ -30,7 +35,7 @@ func change_state(sourceState: State, newStateName: String) -> void:
 		printerr("invalid change of state!\n Expect: "+ currentState.name +". Got: "+ sourceState.name)
 		return
 		
-	var newState: State = states.get(newStateName.to_lower()) 
+	var newState: State = states.get(newStateName.to_lower())
 	if !newState:
 		printerr(newStateName + "not found!")
 		return

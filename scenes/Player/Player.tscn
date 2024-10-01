@@ -1,4 +1,4 @@
-[gd_scene load_steps=18 format=3 uid="uid://bs8sh3o8ayqqm"]
+[gd_scene load_steps=20 format=3 uid="uid://bs8sh3o8ayqqm"]
 
 [ext_resource type="Script" path="res://scenes/Player/Player.gd" id="1_1dsvw"]
 [ext_resource type="Script" path="res://scenes/Components/hurtbox/HurtboxComponent.gd" id="1_hcnvy"]
@@ -8,6 +8,7 @@
 [ext_resource type="Script" path="res://scripts/StateMachine.gd" id="6_41wya"]
 [ext_resource type="Script" path="res://scenes/States/FollowMouse.gd" id="7_mv7bv"]
 [ext_resource type="Script" path="res://scenes/States/WalkingAround.gd" id="7_wmkgb"]
+[ext_resource type="Script" path="res://scenes/States/attack.gd" id="9_carnf"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_uv1b0"]
 atlas = ExtResource("2_1hcun")
@@ -45,18 +46,21 @@ animations = [{
 "speed": 5.0
 }]
 
-[sub_resource type="RectangleShape2D" id="RectangleShape2D_av6de"]
-size = Vector2(6, 4)
-
 [sub_resource type="CapsuleShape2D" id="CapsuleShape2D_4gc5l"]
 radius = 6.0
-height = 18.0
+height = 14.0
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_j5qi8"]
-size = Vector2(12, 14)
+size = Vector2(12, 7)
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_nuf32"]
-radius = 32.0
+radius = 55.0
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_tlnib"]
+radius = 26.0192
+
+[sub_resource type="LabelSettings" id="LabelSettings_waxsk"]
+font_size = 12
 
 [node name="Player" type="CharacterBody2D"]
 position = Vector2(0, -1)
@@ -75,8 +79,7 @@ offset_bottom = -13.0
 metadata/_edit_use_anchors_ = true
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
-position = Vector2(7, 0)
-shape = SubResource("RectangleShape2D_av6de")
+shape = SubResource("CapsuleShape2D_4gc5l")
 
 [node name="HurtboxComponent" type="Area2D" parent="."]
 script = ExtResource("1_hcnvy")
@@ -88,6 +91,7 @@ shape = SubResource("CapsuleShape2D_4gc5l")
 script = ExtResource("2_u5ahj")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="HitboxComponent"]
+position = Vector2(12, 0.5)
 shape = SubResource("RectangleShape2D_j5qi8")
 
 [node name="PerceptionArea" type="Area2D" parent="."]
@@ -95,12 +99,45 @@ shape = SubResource("RectangleShape2D_j5qi8")
 [node name="CollisionShape2D" type="CollisionShape2D" parent="PerceptionArea"]
 shape = SubResource("CircleShape2D_nuf32")
 
-[node name="StateMachine" type="Node" parent="." node_paths=PackedStringArray("initialState")]
+[node name="AttackArea" type="Area2D" parent="."]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="AttackArea"]
+shape = SubResource("CircleShape2D_tlnib")
+
+[node name="StateMachine" type="Node" parent="." node_paths=PackedStringArray("initialState", "text")]
 script = ExtResource("6_41wya")
 initialState = NodePath("idle")
+text = NodePath("../Control/Label")
 
-[node name="idle" type="Node" parent="StateMachine"]
+[node name="idle" type="Node" parent="StateMachine" node_paths=PackedStringArray("character")]
 script = ExtResource("7_wmkgb")
+character = NodePath("../..")
 
-[node name="moving" type="Node" parent="StateMachine"]
+[node name="moving" type="Node" parent="StateMachine" node_paths=PackedStringArray("character", "perceptionArea", "stateMachine")]
 script = ExtResource("7_mv7bv")
+character = NodePath("../..")
+perceptionArea = NodePath("../../PerceptionArea")
+stateMachine = NodePath("..")
+statesToEnter = Array[String](["idle"])
+
+[node name="Node" type="Node" parent="StateMachine" node_paths=PackedStringArray("attackArea", "hitBox")]
+script = ExtResource("9_carnf")
+attackArea = NodePath("../../AttackArea")
+hitBox = NodePath("../../HitboxComponent")
+
+[node name="Control" type="Control" parent="."]
+layout_mode = 3
+anchors_preset = 0
+offset_right = 40.0
+offset_bottom = 40.0
+mouse_filter = 2
+
+[node name="Label" type="Label" parent="Control"]
+layout_mode = 0
+offset_left = -20.0
+offset_top = -30.0
+offset_right = 20.0
+offset_bottom = -7.0
+label_settings = SubResource("LabelSettings_waxsk")
+horizontal_alignment = 1
+vertical_alignment = 1

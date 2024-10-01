@@ -1,7 +1,7 @@
-class_name State
-extends Node
+extends State
 
-signal  state_transition
+@export var attackArea : Area2D
+@export var hitBox: Area2D
 
 func init() -> void:
 	pass
